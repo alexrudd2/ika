@@ -4,7 +4,7 @@ Python driver for IKA equipment.
 Distributed under the GNU General Public License v3
 Copyright (C) 2022 NuMat Technologies
 """
-from ika.driver import Hotplate, OverheadStirrer
+from ika.driver import Hotplate, OverheadStirrer, Shaker
 
 
 def command_line(args=None):
@@ -33,6 +33,13 @@ def command_line(args=None):
         async def get():
             async with Hotplate(args.address, args.port,
                                 include_surface_control=not args.no_info) as device:
+                d = await device.get()
+                if not args.no_info:
+                    d['info'] = await device.get_info()
+                print(json.dumps(d, indent=4))
+    elif args.type == 'shaker':
+        async def get():
+            async with Shaker(args.address, args.port) as device:
                 d = await device.get()
                 if not args.no_info:
                     d['info'] = await device.get_info()

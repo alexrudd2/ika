@@ -222,3 +222,67 @@ class Hotplate(TcpClient, HotplateProtocol):
     async def reset(self):
         """Reset the hotplate, and turn off the heater and stirrer."""
         await self._write(self.RESET)
+
+
+class ShakerProtocol():
+    """Protocol for communicating with an orbital shaker.
+
+    Command syntax and format from the manual:
+        - commands and parameters are transmitted as capital letters
+        - commands and parameters including successive parameters are separated by at least
+          one space (hex 0x20)
+        - each individual command (including parameters and data and each response are terminated
+          with Blank CR LF (hex 0x20 hex 0x0d hex 0x0A) and have a maximum length of 80 characters
+        - the decimal separator in a number is a dt (hex 0x2E)
+    """
+
+    # orbital shaker NAMUR commands
+    READ_DEVICE_NAME = "IN_NAME"
+    READ_ACTUAL_SPEED = "IN_PV_4" 
+    READ_SPEED_SETPOINT = "IN_SP_4" 
+    SET_SPEED = "OUT_SP_4" 
+    START_MOTOR = "START_4" 
+    STOP_MOTOR = "STOP_4"
+    READ_SOFTWARE_VERSION = "IN_VERSION"
+    READ_SOFTWARE_ID = "IN_SOFTWARE_ID" # Read software ID and version
+    READ_IAP_ID = "IN_IAP_ID"
+    READ_PCB_ID = "IN_PCB_ID"
+    READ_FLASH_SIZE = "IN_FLASH_SIZE" # Displays controller flash size
+
+
+class Shaker(TcpClient, ShakerProtocol):
+    """Driver for IKA orbital shaker."""
+
+    def __init__(self, ip: str, port: int = 23):
+        """Set up connection parameters, IP address and port."""
+        self.units = None
+        if ":" in ip:
+            port = int(ip.split(":")[1])
+            ip = ip.split(':')[0]
+        super().__init__(ip, port)
+
+    async def get(self):
+        """Get orbital shaker speed."""
+        speed = await self._write_and_read(self.READ_ACTUAL_SPEED)
+        response = {
+            'speed': speed,
+        }
+        return response
+
+    async def get_info(self):
+        """Get name and setpoint of orbital shaker."""
+        name = await self._write_and_read(self.READ_DEVICE_NAME)
+        setpoint = await self._write_and_read(self.READ_SPEED_SETPOINT)
+        response = {
+            'name': name,
+            'setpoint': setpoint,
+        }
+        return response
+
+    async def control(self, on: bool):
+        """Control the orbital shaker motor."""
+        await self._write(self.START_THE_MOTOR if on else self.STOP_THE_MOTOR)
+
+    async def set(self, equipment: str, setpoint: float):
+        """Set a shaker speed setpoint."""
+        await self._write(self.SET_SPEED + str(setpoint))

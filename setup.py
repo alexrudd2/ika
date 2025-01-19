@@ -1,30 +1,29 @@
 """Python driver and command line tool for IKA instruments."""
-from sys import version_info
-
 from setuptools import setup
 
-if version_info < (3, 7):
-    raise ImportError("This module requires Python >=3.7.")
-
-with open('README.md', 'r') as in_file:
+with open('README.md') as in_file:
     long_description = in_file.read()
 
 setup(
     name="ika-control",
-    version="0.1.0",
+    version="0.6.1",
     description="Python driver for IKA instruments.",
     long_description=long_description,
     long_description_content_type='text/markdown',
-    url="https://github.com/alexrudd2/ika/",
+    url="https://github.com/numat/ika/",
     author="Alex Ruddick",
     author_email="a.ruddick@numat-tech.com",
     packages=['ika'],
-    install_requires=[],
+    install_requires=['pyserial'],
     extras_require={
         'test': [
-            'pytest',
-            'pytest-cov',
-            'pytest-asyncio',
+            'pytest>=6,<8',
+            'pytest-cov>=5,<6',
+            'pytest-asyncio==0.*',
+            'pytest-xdist==3.*',
+            'ruff==0.8.4',
+            'mypy==1.14.1',
+            'types-pyserial==3.5.0.20240311'
         ],
     },
     entry_points={
@@ -37,11 +36,11 @@ setup(
         'Natural Language :: English',
         'Programming Language :: Python',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
         'Programming Language :: Python :: 3.11',
+        'Programming Language :: Python :: 3.12',
         'Topic :: Scientific/Engineering :: Human Machine Interfaces',
     ],
 )

@@ -10,9 +10,9 @@ setup(
     description="Python driver for IKA instruments.",
     long_description=long_description,
     long_description_content_type='text/markdown',
-    url="https://github.com/numat/ika/",
+    url="https://github.com/alexrudd2/ika/",
     author="Alex Ruddick",
-    author_email="a.ruddick@numat-tech.com",
+    author_email="alex@ruddick.tech",
     packages=['ika'],
     install_requires=['pyserial'],
     extras_require={

@@ -41,31 +41,31 @@ class OverheadStirrer(RealOverheadStirrer):
             'temp': 0.0,
         }
 
-    async def query(self, command):
+    async def query(self, query):
         """Return mock requests to queries."""
         if not self.lock:
             self.lock = asyncio.Lock()
         async with self.lock:  # lock releases on CancelledError
-            if command == self.READ_DEVICE_NAME:
+            if query == self.READ_DEVICE_NAME:
                 return self.state['name']
-            elif command == self.READ_TORQUE_LIMIT:
+            elif query == self.READ_TORQUE_LIMIT:
                 return self.state['torque_limit']
-            elif command == self.READ_SPEED_LIMIT:
+            elif query == self.READ_SPEED_LIMIT:
                 return self.state['speed_limit']
-            elif command == self.READ_ACTUAL_SPEED:
+            elif query == self.READ_ACTUAL_SPEED:
                 return round(uniform(30, 120), 2)
-            elif command == self.READ_ACTUAL_TORQUE:
+            elif query == self.READ_ACTUAL_TORQUE:
                 return round(uniform(0, 10), 2)
-            elif command == self.READ_PT1000:
+            elif query == self.READ_PT1000:
                 return round(uniform(15, 60), 2)
-            elif command == self.READ_MOTOR_STATUS:
+            elif query == self.READ_MOTOR_STATUS:
                 return self.state['speed']['active']
-            elif command == self.READ_SET_SPEED:
+            elif query == self.READ_SET_SPEED:
                 return self.state['speed']['setpoint']
-            elif command == self.START_MOTOR:
+            elif query == self.START_MOTOR:
                 self.state['speed']['active'] = True
                 return self.START_MOTOR
-            elif command == self.STOP_MOTOR:
+            elif query == self.STOP_MOTOR:
                 self.state['speed']['active'] = False
                 return self.STOP_MOTOR
 
@@ -253,34 +253,34 @@ class Vacuum(RealVacuum):
             }
         }
 
-    async def query(self, command) -> str:
+    async def query(self, query) -> str:
         """Return mock requests to queries."""
         if not self.lock:
             self.lock = asyncio.Lock()
         async with self.lock:  # lock releases on CancelledError
-            if command == self.READ_DEVICE_NAME:
+            if query == self.READ_DEVICE_NAME:
                 return self.state['name']
-            elif command == self.READ_SET_PRESSURE:
+            elif query == self.READ_SET_PRESSURE:
                 return str(self.state['pressure']['setpoint'])
-            elif command == self.READ_ACTUAL_PRESSURE:
+            elif query == self.READ_ACTUAL_PRESSURE:
                 return str(self.state['pressure']['actual'])
-            elif command == self.READ_VAC_STATUS:
+            elif query == self.READ_VAC_STATUS:
                 return '75' if not self.state['active'] else '12345'
-            elif command == self.READ_SOFTWARE_VERSION:
+            elif query == self.READ_SOFTWARE_VERSION:
                 return self.state['version']
-            elif command == self.READ_VAC_MODE:
+            elif query == self.READ_VAC_MODE:
                 return VacuumProtocol.Mode[self.state['mode']].value
-            elif command == self.START_MEASUREMENT:
+            elif query == self.START_MEASUREMENT:
                 self.state['active'] = True
-            elif command == self.STOP_MEASUREMENT:
+            elif query == self.STOP_MEASUREMENT:
                 self.state['active'] = False
             else:
-                command, value = command.split(" ", 1)
-                if command == self.SET_PRESSURE.strip():
+                query, value = query.split(" ", 1)
+                if query == self.SET_PRESSURE.strip():
                     self.state['pressure']['setpoint'] = float(value)
-                elif command == self.SET_DEVICE_NAME.strip():
+                elif query == self.SET_DEVICE_NAME.strip():
                     self.state['name'] = value
                     return ""
-                elif command == self.SET_VAC_MODE.strip():
+                elif query == self.SET_VAC_MODE.strip():
                     self.state['mode'] = VacuumProtocol.Mode(value).name
-            return command
+            return query

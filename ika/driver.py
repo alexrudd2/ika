@@ -14,19 +14,19 @@ logger = logging.getLogger('ika')
 class IKADevice(ABC):
     """Abstract base class for IKA devices."""
 
-    def __init__(self, address, **kwargs):
+    def __init__(self, address, **kwargs) -> None:
         """Set up connection parameters, serial or IP address and port."""
         if address.startswith('/dev') or address.startswith('COM'):  # serial
             self.hw: Client = SerialClient(address=address, **kwargs)
         else:
             self.hw = TcpClient(address=address, **kwargs)
-        self.lock = None  # needs to be initialized later, when the event loop exists
+        self.lock: asyncio.Lock = None  # type: ignore  # needs to be initialized later, when the event loop exists
 
     async def __aenter__(self, *args):
         """Provide async enter to context manager."""
         return self
 
-    async def __aexit__(self, *args):
+    async def __aexit__(self, *args) -> None:
         """Provide async exit to context manager."""
         return
 
@@ -338,13 +338,13 @@ class ShakerProtocol:
 class Shaker(ShakerProtocol, IKADevice):
     """Driver for IKA orbital shaker."""
 
-    def __init__(self, address, **kwargs):
+    def __init__(self, address, **kwargs) -> None:
         """Set up connection parameters, serial or IP address and port."""
         if address.startswith('/dev') or address.startswith('COM'):  # serial
             self.hw: Client = SerialClient(address=address, **kwargs)
         else:
             self.hw = TcpClient(address=address, **kwargs)
-        self.lock = None  # needs to be initialized later, when the event loop exists
+        self.lock: asyncio.Lock = None  # type: ignore  # needs to be initialized later, when the event loop exists
 
     async def get(self):
         """Get orbital shaker speed."""
@@ -472,13 +472,13 @@ class VacuumProtocol:
 class Vacuum(VacuumProtocol, IKADevice):
     """Driver for IKA vacuum pump."""
 
-    def __init__(self, address, **kwargs):
+    def __init__(self, address, **kwargs) -> None:
         """Set up connection parameters, serial or IP address and port."""
         if address.startswith('/dev') or address.startswith('COM'):  # serial
             self.hw: Client = SerialClient(address=address, **kwargs)
         else:
             self.hw = TcpClient(address=address, **kwargs)
-        self.lock = None  # needs to be initialized later, when the event loop exists
+        self.lock:asyncio.Lock = None  # type: ignore  # needs to be initialized later, when the event loop exists
 
     async def get_pressure(self) -> float:
         """Get vacuum pressure, converting to mmHg."""
@@ -540,21 +540,21 @@ class Vacuum(VacuumProtocol, IKADevice):
         setpoint_mbar = str(int(setpoint * 1.333))
         await self.query(self.SET_PRESSURE + setpoint_mbar)
 
-    async def set_mode(self, mode: VacuumProtocol.Mode):
+    async def set_mode(self, mode: VacuumProtocol.Mode) -> None:
         """Set the operating mode.
 
         Unlike other commands, the vacuum echoes back, so use query().
         """
         await self.query(self.SET_VAC_MODE + str(mode.value))
 
-    async def set_name(self, name: str):
+    async def set_name(self, name: str) -> None:
         """Set a custom device name.
 
         Unlike other commands, the vacuum echoes back, so use query().
         """
         await self.query(self.SET_DEVICE_NAME + name)
 
-    async def control(self, on: bool):
+    async def control(self, on: bool) -> None:
         """Control the vacuum running status.
 
         Unlike other commands, the vacuum echoes back, so use query().

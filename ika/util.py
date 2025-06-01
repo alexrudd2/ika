@@ -33,12 +33,12 @@ class Client:
         pass
 
     @abstractmethod
-    async def _read(self, length):
+    async def _read(self, length) -> str:
         """Read a fixed number of bytes from the device."""
         pass
 
     @abstractmethod
-    async def _readline(self):
+    async def _readline(self) -> str:
         """Read until a LF terminator."""
         pass
 
@@ -106,7 +106,7 @@ class Client:
             return None
 
     @abstractmethod
-    def _handle_connection(self):
+    async def _handle_connection(self):
         pass
 
     @abstractmethod
@@ -165,14 +165,14 @@ class TcpClient(Client):
         response = await self.connection['reader'].readuntil(self.eol)
         return response.decode().strip()
 
-    async def _write(self, command: str):
+    async def _write(self, message: str):
         """Write a command and do not expect a response.
 
         As industrial devices are commonly unplugged, this has been expanded to
         handle recovering from disconnects.
         """
         await self._handle_connection()
-        self.connection['writer'].write(command.encode() + self.eol)
+        self.connection['writer'].write(message.encode() + self.eol)
 
     async def _handle_connection(self):
         """Automatically maintain TCP connection."""

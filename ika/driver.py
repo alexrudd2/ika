@@ -2,7 +2,7 @@
 
 import asyncio
 import logging
-from abc import ABC
+from abc import ABC, abstractmethod
 from enum import Enum
 from typing import Any, Dict
 
@@ -47,6 +47,14 @@ class IKADevice(ABC):
     async def reset(self) -> None:
         """Reset the device."""
         await self.command('RESET')
+
+    @abstractmethod
+    async def get(self) -> dict:
+        """Get current device state."""
+        ...
+    @abstractmethod
+    async def get_info(self) -> dict:
+        """Get current info about the device."""
 
 
 class OverheadStirrerProtocol:

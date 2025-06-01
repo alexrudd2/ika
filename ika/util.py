@@ -128,7 +128,7 @@ class TcpClient(Client):
         try:
             self.address, self.port = address.split(':')
         except ValueError:
-            raise ValueError('address must be hostname:port')
+            raise ValueError('address must be hostname:port') from None
 
     async def __aenter__(self):
         """Provide async entrance to context manager.

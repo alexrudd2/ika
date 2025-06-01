@@ -209,7 +209,7 @@ class Hotplate(HotplateProtocol, IKADevice):
         super().__init__(address)
         self.include_surface_control = include_surface_control
 
-    async def get(self, include_surface_control=False):
+    async def get(self):
         """Get hotplate speed, surface temperature, and process temperature readings."""
         speed = await self.query(self.READ_ACTUAL_SPEED)
         speed_sp = await self.query(self.READ_SPEED_SETPOINT)

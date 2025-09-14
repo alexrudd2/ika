@@ -39,7 +39,7 @@ test = [
   "pytest-xdist==3.*",
   "ruff==0.12.11",
   "mypy==1.18.1",
-  "types-pyserial==3.5.0.20250822",
+  "types-pyserial==3.5.0.20250914",
 ]
 
 [project.scripts]

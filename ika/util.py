@@ -73,7 +73,7 @@ class Client:
                 elif 'STATUS' in command:  # hotplate
                     return response[0:2] == '11'  # undocumented, 11 = active, 12 = inactive
                 return float(response[:-2])  # strip response command readback
-            except asyncio.exceptions.IncompleteReadError:
+            except asyncio.IncompleteReadError:
                 logger.error('IncompleteReadError.  Are there multiple connections?')
                 return None
         else:

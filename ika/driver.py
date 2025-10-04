@@ -219,7 +219,7 @@ class Hotplate(HotplateProtocol, IKADevice):
         shaker_status = await self.query(self.READ_SHAKER_STATUS)
         process_heater_status = await self.query(self.READ_PROCESS_HEATER_STATUS)
         surface_data = {
-            'actual': await self.query(self.READ_ACTUAL_SURFACE_TEMP)
+            'actual': await self.query(self.READ_ACTUAL_SURFACE_TEMP),
         }
         if self.include_surface_control:
             surface_data['setpoint'] = await self.query(self.READ_SURFACE_TEMP_SETPOINT)
@@ -240,7 +240,7 @@ class Hotplate(HotplateProtocol, IKADevice):
             'surface_temp': surface_data,
             'fluid_temp': {
                 'actual': fluid_temp,
-            }
+            },
         }
         return response
 
@@ -372,7 +372,7 @@ class Shaker(ShakerProtocol, IKADevice):
                 'setpoint': int(speed_sp) if isinstance(speed_sp, float) else speed_sp,
                 'actual': int(speed) if isinstance(speed, float) else speed,
                 'active': shaker_status,
-            }
+            },
         }
         return response
 
@@ -465,7 +465,7 @@ class VacuumProtocol:
             "Have you tried turning it off and on again?"),
         4: "The motor has overloaded.  Have you tried turning it off and on again?",
         8: "The speed sensor has faulted.  Contact service.",
-        9: "The internal flash has a read or write error.  Contact service."
+        9: "The internal flash has a read or write error.  Contact service.",
     }
 
     class Mode(Enum):
@@ -526,7 +526,7 @@ class Vacuum(VacuumProtocol, IKADevice):
             'pressure': {
                 'setpoint': pressure_sp,
                 'actual': pressure,
-            }
+            },
         }
         return response
 

@@ -110,7 +110,7 @@ class Hotplate(RealHotplate):
             },
             "fluid_temp": {
                 "actual": 100,
-            }
+            },
         }
 
     async def query(self, query):
@@ -250,7 +250,7 @@ class Vacuum(RealVacuum):
             'pressure': {
                 'setpoint': 0.0,
                 'actual': 0.0,
-            }
+            },
         }
 
     async def query(self, query) -> str:

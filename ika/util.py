@@ -55,7 +55,7 @@ class Client:
                 elif 'IN_PV_4' in response:
                     raise ConnectionError(
                         'Hotplate configured to communciate with a Eurostar overhead stirrer. '
-                        'This must be turned off in the hotplate settings.'
+                        'This must be turned off in the hotplate settings.',
                     )
                 elif command in response:  # vacuum replies to queries by echoing the query
                     return response.strip(command).strip()

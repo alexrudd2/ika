@@ -55,7 +55,7 @@ packages = ["ika"]
 [tool.ruff]
 extend-exclude = ["venv*"]
 line-length = 99
-target-version = "py38"
+target-version = "py39"
 
 [tool.ruff.lint]
 ignore = [

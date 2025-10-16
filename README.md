@@ -1,7 +1,7 @@
 ika
 ===
 
-Python ≥3.8 driver and command-line tool for IKA products.
+Python driver and command-line tool for IKA products.
  - Eurostar 60/100 control overhead stirrers
  - MATRIX ORBITAL shaker
  - RET control-visc hotplate/stirrer
@@ -11,7 +11,7 @@ Installation
 ============
 
 ```
-pip install ika-control
+uv pip install ika-control
 ```
 
 Usage

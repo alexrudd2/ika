@@ -31,8 +31,8 @@ classifiers = [
   "Topic :: Scientific/Engineering :: Human Machine Interfaces",
 ]
 
-[project.optional-dependencies]
-test = [
+[dependency-groups]
+dev = [
   "pytest>=8,<9",
   "pytest-cov>=7,<8",
   "pytest-asyncio>=1,<1.3",

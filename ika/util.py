@@ -1,7 +1,6 @@
 """Base functionality for async TCP communication.
 
 Distributed under the GNU General Public License v3
-Copyright (C) 2022 NuMat Technologies
 """
 import asyncio
 import logging

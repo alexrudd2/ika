@@ -6,12 +6,12 @@ Copyright (C) 2022 NuMat Technologies
 import asyncio
 import logging
 from abc import abstractmethod
+from typing import TypedDict
 
 import serial
 
 # Add logger to module
 logger = logging.getLogger('ika')
-
 
 class Client:
     """Serial or TCP client."""
@@ -23,7 +23,6 @@ class Client:
         self.timeout = timeout
         self.timeouts = 0
         self.max_timeouts = 10
-        self.connection = {}
         self.reconnecting = False
         self.eol = b'\r\n'
 
@@ -114,13 +113,17 @@ class Client:
         """Close the connection."""
         pass
 
-
+class ReaderWriter(TypedDict):  # noqa: D101
+    reader: asyncio.StreamReader
+    writer: asyncio.StreamWriter
 class TcpClient(Client):
     """A generic reconnecting asyncio TCP client.
 
     This base functionality can be used by any industrial control device
     communicating over TCP.
     """
+
+    connection: ReaderWriter
 
     def __init__(self, address, timeout=1):
         """Communicator using a TCP/IP<=>serial gateway."""

@@ -89,8 +89,8 @@ convention = "pep257"
 disallow_untyped_defs = false
 check_untyped_defs = true
 
-[tool.pytest.ini_options]
-addopts = "--cov=ika"
+[tool.pytest]
+addopts = ["--cov"]
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope="session"
 

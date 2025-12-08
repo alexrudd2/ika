@@ -22,7 +22,7 @@ class IKADevice(ABC):
             self.hw = TcpClient(address=address, **kwargs)
         self.lock: asyncio.Lock = None  # type: ignore  # needs to be initialized later, when the event loop exists
 
-    async def __aenter__(self, *args):
+    async def __aenter__(self):
         """Provide async enter to context manager."""
         return self
 

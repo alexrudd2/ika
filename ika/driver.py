@@ -346,14 +346,6 @@ class ShakerProtocol:
 class Shaker(ShakerProtocol, IKADevice):
     """Driver for IKA orbital shaker."""
 
-    def __init__(self, address, **kwargs) -> None:
-        """Set up connection parameters, serial or IP address and port."""
-        if address.startswith('/dev') or address.startswith('COM'):  # serial
-            self.hw: Client = SerialClient(address=address, **kwargs)
-        else:
-            self.hw = TcpClient(address=address, **kwargs)
-        self.lock: asyncio.Lock = None  # type: ignore  # needs to be initialized later, when the event loop exists
-
     async def get(self):
         """Get orbital shaker speed."""
         temp = await self.query(self.READ_ACTUAL_TEMPERATURE)
@@ -479,14 +471,6 @@ class VacuumProtocol:
 
 class Vacuum(VacuumProtocol, IKADevice):
     """Driver for IKA vacuum pump."""
-
-    def __init__(self, address, **kwargs) -> None:
-        """Set up connection parameters, serial or IP address and port."""
-        if address.startswith('/dev') or address.startswith('COM'):  # serial
-            self.hw: Client = SerialClient(address=address, **kwargs)
-        else:
-            self.hw = TcpClient(address=address, **kwargs)
-        self.lock:asyncio.Lock = None  # type: ignore  # needs to be initialized later, when the event loop exists
 
     async def get_pressure(self) -> float:
         """Get vacuum pressure, converting to mmHg."""

@@ -204,7 +204,7 @@ class TcpClient(Client):
                 self.close()
             return None
 
-    def close(self):
+    def close(self) -> None:
         """Close the TCP connection."""
         if self.open:
             self.connection['writer'].close()

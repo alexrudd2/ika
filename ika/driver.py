@@ -19,7 +19,7 @@ class IKADevice(ABC):
         if address.startswith('/dev') or address.startswith('COM'):  # serial
             self.hw: Client = SerialClient(address=address, **kwargs)
         else:
-            self.hw = TcpClient(address=address, **kwargs)
+            self.hw = TcpClient(address=address)
         self.lock: asyncio.Lock = None  # type: ignore[assignment]  # needs to be initialized later, when the event loop exists
 
     async def __aenter__(self):
@@ -205,9 +205,9 @@ class HotplateProtocol:
 class Hotplate(HotplateProtocol, IKADevice):
     """Driver for IKA hotplate stirrer."""
 
-    def __init__(self, address: str, include_surface_control: bool = False):
+    def __init__(self, address: str, include_surface_control: bool = False, **kwargs):
         """Set up connection parameters, IP address and port."""
-        super().__init__(address)
+        super().__init__(address, **kwargs)
         self.include_surface_control = include_surface_control
 
     async def get(self) -> dict[str, Any]:

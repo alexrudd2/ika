@@ -13,10 +13,10 @@ def command_line(args=None):
     import json
 
     parser = argparse.ArgumentParser(description="Read device status.")
-    parser.add_argument('address', type=str, help="The target TCP address:port")
-    parser.add_argument('-t', '--type', help="The type of device (default 'overhead')",
+    _ = parser.add_argument('address', type=str, help="The target TCP address:port")
+    _ = parser.add_argument('-t', '--type', help="The type of device (default 'overhead')",
                         type=str, default='overhead')
-    parser.add_argument('-n', '--no-info', action='store_true', help="Exclude "
+    _ =parser.add_argument('-n', '--no-info', action='store_true', help="Exclude "
                         "device information. Reduces communication overhead.")
     args = parser.parse_args(args)
     if args.type == 'overhead':

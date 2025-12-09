@@ -41,7 +41,7 @@ class OverheadStirrer(RealOverheadStirrer):
             'temp': 0.0,
         }
 
-    async def query(self, query):
+    async def query(self, query: str):
         """Return mock requests to queries."""
         if not self.lock:
             self.lock = asyncio.Lock()
@@ -69,7 +69,7 @@ class OverheadStirrer(RealOverheadStirrer):
                 self.state['speed']['active'] = False
                 return self.STOP_MOTOR
 
-    async def command(self, command):
+    async def command(self, command: str):
         """Update mock state with commands."""
         if not self.lock:
             self.lock = asyncio.Lock()
@@ -113,7 +113,7 @@ class Hotplate(RealHotplate):
             },
         }
 
-    async def query(self, query):
+    async def query(self, query: str):
         """Return mock requests to queries."""
         await asyncio.sleep(uniform(0.0, 0.05))
         if not self.lock:
@@ -146,7 +146,7 @@ class Hotplate(RealHotplate):
             elif query == self.READ_SURFACE_HEATER_STATUS:
                 return self.state["surface_temp"]["active"]
 
-    async def command(self, command):
+    async def command(self, command: str) -> None:
         """Update mock state with commands."""
         if not self.lock:
             self.lock = asyncio.Lock()
@@ -190,7 +190,7 @@ class Shaker(RealShaker):
             'software_ID': 2,
         }
 
-    async def query(self, query):
+    async def query(self, query: str):
         """Return mock requests to queries."""
         if not self.lock:
             self.lock = asyncio.Lock()
@@ -214,7 +214,7 @@ class Shaker(RealShaker):
             elif query == self.READ_SOFTWARE_ID:
                 return self.state['software_ID']
 
-    async def command(self, command):
+    async def command(self, command: str) -> None:
         """Update mock state with commands."""
         if not self.lock:
             self.lock = asyncio.Lock()
@@ -253,7 +253,7 @@ class Vacuum(RealVacuum):
             },
         }
 
-    async def query(self, query) -> str:
+    async def query(self, query: str) -> str:
         """Return mock requests to queries."""
         if not self.lock:
             self.lock = asyncio.Lock()

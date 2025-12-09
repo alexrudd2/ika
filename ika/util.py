@@ -15,7 +15,7 @@ logger = logging.getLogger('ika')
 class Client:
     """Serial or TCP client."""
 
-    def __init__(self, timeout):
+    def __init__(self, timeout: float):
         """Initialize common attributes."""
         self.address = ''
         self.open = False
@@ -26,12 +26,12 @@ class Client:
         self.eol = b'\r\n'
 
     @abstractmethod
-    async def _write(self, message):
+    async def _write(self, message: str):
         """Write a message to the device."""
         pass
 
     @abstractmethod
-    async def _read(self, length) -> str:
+    async def _read(self, length: int) -> str:
         """Read a fixed number of bytes from the device."""
         pass
 
@@ -40,7 +40,7 @@ class Client:
         """Read until a LF terminator."""
         pass
 
-    async def _write_and_read(self, command):
+    async def _write_and_read(self, command: str):
         """Write a command and read a response."""
         await self._handle_connection()
         if self.open:
@@ -77,7 +77,7 @@ class Client:
         else:
             return None
 
-    async def _clear(self):
+    async def _clear(self) -> None:
         """Clear the reader stream when it has been corrupted from multiple connections."""
         logger.warning("Multiple connections detected; clearing reader stream.")
         try:
@@ -86,7 +86,7 @@ class Client:
         except TimeoutError:
             pass
 
-    async def _handle_communication(self, command):
+    async def _handle_communication(self, command: str):
         """Manage communication, including timeouts and logging."""
         try:
             await self._write(command)
@@ -124,7 +124,7 @@ class TcpClient(Client):
 
     connection: ReaderWriter
 
-    def __init__(self, address, timeout=1):
+    def __init__(self, address: str, timeout: float = 1):
         """Communicator using a TCP/IP<=>serial gateway."""
         super().__init__(timeout)
         try:
@@ -140,34 +140,34 @@ class TcpClient(Client):
         await self._handle_connection()
         return self
 
-    def __exit__(self, *args):
+    def __exit__(self, *args) -> None:
         """Provide exit to context manager."""
         self.close()
 
-    async def __aexit__(self, *args):
+    async def __aexit__(self, *args) -> None:
         """Provide async exit to context manager."""
         self.close()
 
-    async def _connect(self):
+    async def _connect(self) -> None:
         """Asynchronously open a TCP connection with the server."""
         self.close()
         reader, writer = await asyncio.open_connection(self.address, self.port)
         self.connection = {'reader': reader, 'writer': writer}
         self.open = True
 
-    async def _read(self, length: int):
+    async def _read(self, length: int) -> str:
         """Read a fixed number of bytes from the device."""
         await self._handle_connection()
         response = await self.connection['reader'].read(length)
         return response.decode().strip()
 
-    async def _readline(self):
+    async def _readline(self) -> str:
         """Read until a line terminator."""
         await self._handle_connection()
         response = await self.connection['reader'].readuntil(self.eol)
         return response.decode().strip()
 
-    async def _write(self, message: str):
+    async def _write(self, message: str) -> None:
         """Write a command and do not expect a response.
 
         As industrial devices are commonly unplugged, this has been expanded to
@@ -176,7 +176,7 @@ class TcpClient(Client):
         await self._handle_connection()
         self.connection['writer'].write(message.encode() + self.eol)
 
-    async def _handle_connection(self):
+    async def _handle_connection(self) -> None:
         """Automatically maintain TCP connection."""
         if self.open:
             return
@@ -188,7 +188,7 @@ class TcpClient(Client):
                 logger.error(f'Connecting to {self.address} timed out.')
             self.reconnecting = True
 
-    async def _handle_communication(self, command):
+    async def _handle_communication(self, command: str):
         """Manage communication, including timeouts and logging."""
         try:
             await self._write(command)
@@ -218,30 +218,29 @@ class SerialClient(Client):
                  stopbits=serial.STOPBITS_ONE, parity=serial.PARITY_EVEN):
         """Initialize serial port."""
         super().__init__(timeout)
+        assert isinstance(address, str)
         self.address = address
-        assert isinstance(self.address, str)
-        self.serial_details = {'baudrate': baudrate,
-                               'bytesize': bytesize,
-                               'stopbits': stopbits,
-                               'parity': parity,
-                               'timeout': timeout}
-        self.ser = serial.Serial(self.address, **self.serial_details)
+        self.ser = serial.Serial(self.address, baudrate=baudrate,
+                                 bytesize=bytesize,
+                                 stopbits=stopbits,
+                                 parity=parity,
+                                 timeout=timeout)
 
-    async def _read(self, length: int):
+    async def _read(self, length: int) -> str:
         """Read a fixed number of bytes from the device."""
         return self.ser.read(length).decode()
 
-    async def _readline(self):
+    async def _readline(self) -> str:
         """Read until a LF terminator."""
         return self.ser.readline().strip().decode()
 
-    async def _write(self, message: str):
+    async def _write(self, message: str) -> None:
         """Write a message to the device."""
-        self.ser.write(message.encode() + self.eol)
+        _ = self.ser.write(message.encode() + self.eol)
 
-    def close(self):
+    def close(self) -> None:
         """Release resources."""
         self.ser.close()
 
-    async def _handle_connection(self):
+    async def _handle_connection(self) -> None:
         self.open = True

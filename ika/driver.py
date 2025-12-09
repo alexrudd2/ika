@@ -4,7 +4,7 @@ import asyncio
 import logging
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import Any
+from typing import Any, Literal
 
 from ika.util import Client, SerialClient, TcpClient
 
@@ -14,13 +14,13 @@ logger = logging.getLogger('ika')
 class IKADevice(ABC):
     """Abstract base class for IKA devices."""
 
-    def __init__(self, address, **kwargs) -> None:
+    def __init__(self, address: str, **kwargs) -> None:
         """Set up connection parameters, serial or IP address and port."""
         if address.startswith('/dev') or address.startswith('COM'):  # serial
             self.hw: Client = SerialClient(address=address, **kwargs)
         else:
             self.hw = TcpClient(address=address, **kwargs)
-        self.lock: asyncio.Lock = None  # type: ignore  # needs to be initialized later, when the event loop exists
+        self.lock: asyncio.Lock = None  # type: ignore[assignment]  # needs to be initialized later, when the event loop exists
 
     async def __aenter__(self):
         """Provide async enter to context manager."""
@@ -30,14 +30,14 @@ class IKADevice(ABC):
         """Provide async exit to context manager."""
         return
 
-    async def query(self, query) -> str:
+    async def query(self, query: str):
         """Query the device and return its response."""
         if not self.lock:
             self.lock = asyncio.Lock()
         async with self.lock:  # lock releases on CancelledError
             return await self.hw._write_and_read(query)
 
-    async def command(self, command) -> None:
+    async def command(self, command: str) -> None:
         """Send a command to the device and don't expect a response."""
         if not self.lock:
             self.lock = asyncio.Lock()
@@ -49,11 +49,11 @@ class IKADevice(ABC):
         await self.command('RESET')
 
     @abstractmethod
-    async def get(self) -> dict:
+    async def get(self) -> dict[str, Any]:
         """Get current device state."""
         ...
     @abstractmethod
-    async def get_info(self) -> dict:
+    async def get_info(self) -> dict[str, Any]:
         """Get current info about the device."""
 
 
@@ -116,7 +116,7 @@ class OverheadStirrer(OverheadStirrerProtocol, IKADevice):
         }
         return response
 
-    async def get_info(self):
+    async def get_info(self) -> dict[str, Any]:
         """Get name and safety setpoints of overhead stirer."""
         name = await self.query(self.READ_DEVICE_NAME)
         torque_limit = await self.query(self.READ_TORQUE_LIMIT)
@@ -128,7 +128,8 @@ class OverheadStirrer(OverheadStirrerProtocol, IKADevice):
         }
         return response
 
-    async def set(self, equipment='speed', setpoint=0):
+    async def set(self, equipment: Literal['speed', 'speed_limit', 'torque_limit']='speed',
+                  setpoint: int = 0):
         """Set a parameter to the specified value."""
         if equipment == 'speed':
             await self.command(self.SET_SPEED + str(setpoint))
@@ -139,9 +140,9 @@ class OverheadStirrer(OverheadStirrerProtocol, IKADevice):
         else:
             raise ValueError("Call with 'speed', 'speed_limit', or 'torque_limit'")
 
-    async def control(self, on: bool):
+    async def control(self, on: bool) -> None:
         """Control the overhead stirrer motor."""
-        await self.query(self.START_MOTOR if on else self.STOP_MOTOR)
+        _ = await self.query(self.START_MOTOR if on else self.STOP_MOTOR)
 
 
 class HotplateProtocol:
@@ -204,12 +205,12 @@ class HotplateProtocol:
 class Hotplate(HotplateProtocol, IKADevice):
     """Driver for IKA hotplate stirrer."""
 
-    def __init__(self, address, include_surface_control=False):
+    def __init__(self, address: str, include_surface_control: bool = False):
         """Set up connection parameters, IP address and port."""
         super().__init__(address)
         self.include_surface_control = include_surface_control
 
-    async def get(self):
+    async def get(self) -> dict[str, Any]:
         """Get hotplate speed, surface temperature, and process temperature readings."""
         speed = await self.query(self.READ_ACTUAL_SPEED)
         speed_sp = await self.query(self.READ_SPEED_SETPOINT)
@@ -244,7 +245,7 @@ class Hotplate(HotplateProtocol, IKADevice):
         }
         return response
 
-    async def get_info(self):
+    async def get_info(self) -> dict[str, Any]:
         """Get name and safety setpoint of hotplate."""
         name = await self.query(self.READ_DEVICE_NAME)
         device_type = await self.query(self.READ_DEVICE_TYPE)
@@ -256,7 +257,7 @@ class Hotplate(HotplateProtocol, IKADevice):
         }
         return response
 
-    async def control(self, equipment: str, on: bool):
+    async def control(self, equipment: str, on: bool) -> None:
         """Control the heater controlling process temperature, or shaker motor.
 
         Note: direct control of surface temperature is not implemented.
@@ -286,7 +287,7 @@ class Hotplate(HotplateProtocol, IKADevice):
             raise ValueError(f'Equipment "{equipment} invalid. '
                              'Must be "process", "surface", or "shaker"')
 
-    async def reset(self):
+    async def reset(self) -> None:
         """Reset the hotplate, and turn off the heater and stirrer."""
         await self.command(self.RESET)
 
@@ -368,7 +369,7 @@ class Shaker(ShakerProtocol, IKADevice):
         }
         return response
 
-    async def get_info(self):
+    async def get_info(self) -> dict[str, str]:
         """Get name and software version of orbital shaker."""
         name = await self.query(self.READ_DEVICE_NAME)
         version = await self.query(self.READ_SOFTWARE_VERSION)
@@ -380,7 +381,7 @@ class Shaker(ShakerProtocol, IKADevice):
         }
         return response
 
-    async def set(self, equipment: str, setpoint: float):
+    async def set(self, equipment: Literal['heater', 'shaker'], setpoint: float) -> None:
         """Set a temperature or shaker speed setpoint."""
         if equipment == 'heater':
             if setpoint < 1.0 or setpoint > 100:
@@ -394,7 +395,7 @@ class Shaker(ShakerProtocol, IKADevice):
             raise ValueError(f'Equipment "{equipment} invalid. '
                              'Must be either "heater" or "shaker"')
 
-    async def control(self, equipment: str, on: bool):
+    async def control(self, equipment: Literal['heater', 'shaker'], on: bool) -> None:
         """Control the heater controlling process temperature, or shaker motor."""
         if equipment == 'heater':
             await self.command(self.START_HEATER if on else self.STOP_HEATER)
@@ -524,31 +525,31 @@ class Vacuum(VacuumProtocol, IKADevice):
         }
         return response
 
-    async def set(self, setpoint: float):
+    async def set(self, setpoint: float) -> None:
         """Set a vacuum pressure setpoint, converting from mmHg to mbar.
 
         Unlike other commands, the vacuum echoes back, so use query().
         """
         setpoint_mbar = str(int(setpoint * 1.333))
-        await self.query(self.SET_PRESSURE + setpoint_mbar)
+        _ = await self.query(self.SET_PRESSURE + setpoint_mbar)
 
     async def set_mode(self, mode: VacuumProtocol.Mode) -> None:
         """Set the operating mode.
 
         Unlike other commands, the vacuum echoes back, so use query().
         """
-        await self.query(self.SET_VAC_MODE + str(mode.value))
+        _ =await self.query(self.SET_VAC_MODE + str(mode.value))
 
     async def set_name(self, name: str) -> None:
         """Set a custom device name.
 
         Unlike other commands, the vacuum echoes back, so use query().
         """
-        await self.query(self.SET_DEVICE_NAME + name)
+        _ = await self.query(self.SET_DEVICE_NAME + name)
 
     async def control(self, on: bool) -> None:
         """Control the vacuum running status.
 
         Unlike other commands, the vacuum echoes back, so use query().
         """
-        await self.query(self.START_MEASUREMENT if on else self.STOP_MEASUREMENT)
+        _ = await self.query(self.START_MEASUREMENT if on else self.STOP_MEASUREMENT)

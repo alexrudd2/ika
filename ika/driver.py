@@ -90,7 +90,7 @@ class OverheadStirrerProtocol:
     # todo change the direction or rotation with "OUT_MODE_n" (n = 1 or 2).
     # doesn't seem to work with the microstar C
     SET_ROTATION_CLOCKWISE = "OUT_MODE_1"
-    SET_ROTATION_CLOCKWISE = "OUT_MODE_2"  # Fixme: verify
+    SET_ROTATION_CCW = "OUT_MODE_2"  # Fixme: verify
     READ_ROTATION_DIRECTION = "IN_MODE"  # todo doesn't seem to work with the microstar C
 
 

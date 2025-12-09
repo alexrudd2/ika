@@ -29,7 +29,7 @@ $ ika <serial-to-ethernet-ip>:<port> --type vacuum
 
 ## Python
 
-This uses Python ≥3.5's async/await syntax to asynchronously communicate with an IKA device. For example:
+This uses Python async/await syntax to asynchronously communicate with an IKA device. For example:
 
 ```python
 import asyncio

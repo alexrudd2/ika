@@ -101,3 +101,4 @@ enableTypeIgnoreComments = true
 reportImplicitStringConcatenation = false
 reportUnannotatedClassAttribute = false
 reportImplicitOverride = false
+typeCheckingMode = "standard"

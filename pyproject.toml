@@ -85,9 +85,10 @@ select = [
 [tool.ruff.lint.pydocstyle]
 convention = "pep257"
 
-[tool.mypy]
+[tool.zuban]
 disallow_untyped_defs = false
 check_untyped_defs = true
+mode = "mypy"
 
 [tool.pytest]
 addopts = ["--cov"]
